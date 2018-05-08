@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Runtime.Serialization.Formatters.Binary;
+using System.IO;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -7,6 +9,7 @@ using System.Threading.Tasks;
 
 namespace LabPOO
 {
+    [Serializable]
     class Program
     {
         public static List<Product> cart;
@@ -17,6 +20,10 @@ namespace LabPOO
             cart = new List<Product>();
             market = new List<Product>();
             SupplyStore();
+            foreach (Product item in Deserializar("datos.dat"))
+            {
+                cart.Add(item);
+            }
             while (true)
             {
                 PrintHeader();
@@ -51,6 +58,7 @@ namespace LabPOO
                     }
                     else if (answer == "5")
                     {
+                        Serializar(cart);
                         Environment.Exit(1);
                     }
                 }
@@ -72,6 +80,7 @@ namespace LabPOO
                 Console.Write(i.ToString() + " ");
                 Thread.Sleep(1000);
             }
+
             cart.Clear();
         }
 
@@ -116,6 +125,7 @@ namespace LabPOO
             {
                 response = Console.ReadKey(true);
             }
+
         }
 
         public static void PrintProduct(int index, Product product)
@@ -190,6 +200,21 @@ namespace LabPOO
             {
                 response = Console.ReadKey(true);
             }
+        }
+        private static void Serializar(List<Product> carrito)
+        {
+            FileStream _fs = new FileStream(@"..\..\Archivos\datos.dat", FileMode.Create);
+            BinaryFormatter _formatter = new BinaryFormatter();
+            _formatter.Serialize(_fs, carrito);
+            _fs.Close();
+        }
+        private static List<Product> Deserializar(string pArchivo)
+        {
+            FileStream _fs = new FileStream(pArchivo, FileMode.Open);
+            BinaryFormatter _formatter = new BinaryFormatter();
+            List<Product> _producto = _formatter.Deserialize(_fs) as List<Product>;
+            _fs.Close();
+            return _producto;
         }
     }
 }
